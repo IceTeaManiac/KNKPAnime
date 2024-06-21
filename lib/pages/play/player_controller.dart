@@ -262,6 +262,7 @@ abstract class _PlayerController with Store {
     }
 
     try {
+      await player.stop();
       await adapter.play(episode.episodeId, playerController);
     } catch (e) {
       logger.w(e);
