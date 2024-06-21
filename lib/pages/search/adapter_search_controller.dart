@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:knkpanime/adapters/adapter_base.dart';
 import 'package:knkpanime/adapters/adapter_registry.dart' as registry;
@@ -23,11 +23,13 @@ abstract class _AdapterSearchController with Store {
   @observable
   var _statuses =
       ObservableList.of(registry.adapters.map((adapter) => adapter.status));
+
   @computed
   List<List<Series>> get searchResults => _searchResults
       .where((result) =>
           _adapterAvailable(_adapters[_searchResults.indexOf(result)]))
       .toList();
+
   @computed
   List<SearchStatus> get statuses => _statuses
       .where(
@@ -70,6 +72,10 @@ abstract class _AdapterSearchController with Store {
   }
 
   void addJsAdapter(String sourceUrl) async {
+    if (Platform.isLinux) {
+      Modular.get<Logger>().i('JS Adapter is not supported on Linux, aborting');
+      return;
+    }
     if (jsAdapters.map((adapter) => adapter.sourceUrl).contains(sourceUrl)) {
       Modular.get<Logger>()
           .i('JS Adapter from source $sourceUrl already exists, aborting');
